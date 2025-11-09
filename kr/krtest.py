@@ -1,17 +1,28 @@
 data = list()
-write_data = []
+write_data = {}
+
 with open('input.txt','r',encoding='UTF-8') as file:
-    temp = file.readlines()
-    for i in range(1,len(temp)):
-        information = temp[i].split()
-        data.append(information[0:1] + information[2:])
+    rows = file.readline()
+    for row in range(int(rows)):
 
-max_dates = [i[-1].split('.') for i in data]
-final_date = (sorted(max_dates, key = lambda elem:(elem[-1],elem[-2],elem[-3])))[0]
+        data = file.readline().split()
+        data[1] = data[1][3:]
 
-with open('output.txt','w',encoding='utf-8') as wrt:
-    for item in data:
-        if item[-1].split('.')[:-1] == final_date[:-1]:
-            write_data.append([item[0], item[1]])
-            wrt.write(f'{item[0]} {item[1]}')
-            wrt.write(f'\n')
+        if data[0] in write_data:
+            if data[1] in write_data[data[0]]:
+                write_data[data[0]][data[1]] += int(data[2])
+                write_data[data[0]]['all_call_time'] += int(data[2])
+            else:
+                write_data[data[0]][data[1]] = int(data[2])
+                write_data[data[0]]['all_call_time'] += int(data[2])
+        else:
+            write_data[data[0]] = {}
+            write_data[data[0]]['all_call_time'] = int(data[2])
+            write_data[data[0]][data[1]] = int(data[2])
+
+max_elem = max([[int(item['all_call_time']), num]  for num, item in write_data.items()])
+
+with open('output.txt', 'w',encoding='UTF-8') as file:
+    number = max_elem[1]
+    max_month = max([elem, date[:2]] for date, elem in write_data[number].items() if date !='all_call_time')
+    file.write(f'{number} {int(max_month[1])}')
